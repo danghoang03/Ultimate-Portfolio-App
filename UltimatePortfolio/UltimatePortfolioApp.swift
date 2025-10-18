@@ -13,7 +13,14 @@ struct UltimatePortfolioApp: App {
     @State var dataController = DataController()
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NavigationSplitView {
+                SidebarView()
+            } content: {
+                ContentView()
+            }
+            detail: {
+                DetailView()
+            }
                 .environment(\.managedObjectContext, dataController.container.viewContext)
                 .environment(dataController)
         }
