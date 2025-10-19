@@ -6,10 +6,32 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct ContentView: View {
+    @Environment(DataController.self) var dataController
+    var issues: [Issue] {
+        let filter = dataController.selectedFilter ?? .all
+        var allIssues: [Issue]
+        
+        if let tag = filter.tag {
+            allIssues = tag.issues?.allObjects as? [Issue] ?? []
+        } else {
+            let request = Issue.fetchRequest()
+            request.predicate = NSPredicate(format: "modificationDate > %@", filter.minModificationData as NSDate)
+            allIssues = (try? dataController.container.viewContext.fetch(request)) ?? []
+        }
+        
+        return allIssues.sorted()
+    }
+    
     var body: some View {
-        Text("Content")
+        List {
+            ForEach(issues) { issue in
+                IssueRow(issue: issue)
+            }
+        }
+        .navigationTitle("Issues")
     }
 }
 
