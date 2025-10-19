@@ -18,7 +18,7 @@ struct ContentView: View {
             allIssues = tag.issues?.allObjects as? [Issue] ?? []
         } else {
             let request = Issue.fetchRequest()
-            request.predicate = NSPredicate(format: "modificationDate > %@", filter.minModificationData as NSDate)
+            request.predicate = NSPredicate(format: "modificationDate > %@", filter.minModificationDate as NSDate)
             allIssues = (try? dataController.container.viewContext.fetch(request)) ?? []
         }
         
@@ -30,8 +30,16 @@ struct ContentView: View {
             ForEach(issues) { issue in
                 IssueRow(issue: issue)
             }
+            .onDelete(perform: delete)
         }
         .navigationTitle("Issues")
+    }
+    
+    func delete(_ offsets: IndexSet) {
+        for offset in offsets {
+            let item = issues[offset]
+            dataController.delete(item)
+        }
     }
 }
 
