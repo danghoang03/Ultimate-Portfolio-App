@@ -14,12 +14,20 @@ class DataController {
     
     var selectedFilter: Filter? = Filter.all
     
+    var lastUpdate = Date()
+    
     init(inMemory: Bool = false) {
         container = NSPersistentCloudKitContainer(name: "Main")
         
         if inMemory {
             container.persistentStoreDescriptions.first?.url = URL(filePath: "/dev/null")
         }
+        
+        container.viewContext.automaticallyMergesChangesFromParent = true
+        container.viewContext.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
+        
+        container.persistentStoreDescriptions.first?.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+        NotificationCenter.default.addObserver(forName: .NSPersistentStoreRemoteChange, object: container.persistentStoreCoordinator, queue: .main, using: remoteStoreChanged)
         
         container.loadPersistentStores { description, error in
             if let error {
@@ -65,6 +73,7 @@ class DataController {
     func delete(_ object: NSManagedObject) {
         container.viewContext.delete(object)
         save()
+        lastUpdate = Date()
     }
     
     private func delete(_ fetchRequest: NSFetchRequest<NSFetchRequestResult>) {
@@ -85,5 +94,10 @@ class DataController {
         delete(request2)
         
         save()
+        lastUpdate = Date()
+    }
+    
+    func remoteStoreChanged(_ notification: Notification) {
+        lastUpdate = Date()
     }
 }

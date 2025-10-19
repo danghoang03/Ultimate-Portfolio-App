@@ -33,6 +33,7 @@ struct ContentView: View {
             .onDelete(perform: delete)
         }
         .navigationTitle("Issues")
+        .id(dataController.lastUpdate)
     }
     
     func delete(_ offsets: IndexSet) {
