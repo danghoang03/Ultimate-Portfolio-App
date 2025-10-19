@@ -8,8 +8,18 @@
 import SwiftUI
 
 struct DetailView: View {
+    @Environment(DataController.self) var dataController
+    
     var body: some View {
-        Text("Detail")
+        VStack {
+            if let selectedIssue = dataController.selectedIssue {
+                IssueView(issue: selectedIssue)
+            } else {
+                NoIssueView()
+            }
+        }
+        .navigationTitle("Details")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

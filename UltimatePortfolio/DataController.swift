@@ -16,6 +16,8 @@ class DataController {
     
     var lastUpdate = Date()
     
+    var selectedIssue: Issue?
+    
     init(inMemory: Bool = false) {
         container = NSPersistentCloudKitContainer(name: "Main")
         

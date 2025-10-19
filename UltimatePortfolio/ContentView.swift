@@ -26,7 +26,7 @@ struct ContentView: View {
     }
     
     var body: some View {
-        List {
+        List(selection: Bindable(dataController).selectedIssue) {
             ForEach(issues) { issue in
                 IssueRow(issue: issue)
             }
