@@ -11,6 +11,8 @@ import CoreData
 @main
 struct UltimatePortfolioApp: App {
     @State var dataController = DataController()
+    @Environment(\.scenePhase) var scenePhase
+
     var body: some Scene {
         WindowGroup {
             NavigationSplitView {
@@ -23,6 +25,11 @@ struct UltimatePortfolioApp: App {
             }
                 .environment(\.managedObjectContext, dataController.container.viewContext)
                 .environment(dataController)
+                .onChange(of: scenePhase) { _, newPhase in
+                    if newPhase != .active {
+                        dataController.save()
+                    }
+                }
         }
     }
 }

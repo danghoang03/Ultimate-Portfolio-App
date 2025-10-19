@@ -18,6 +18,8 @@ class DataController {
     
     var selectedIssue: Issue?
     
+    private var saveTask: Task<Void, Error>?
+    
     init(inMemory: Bool = false) {
         container = NSPersistentCloudKitContainer(name: "Main")
         
@@ -69,6 +71,15 @@ class DataController {
     func save() {
         if container.viewContext.hasChanges {
             try? container.viewContext.save()
+        }
+    }
+    
+    func queueSave() {
+        saveTask?.cancel()
+        
+        saveTask = Task { @MainActor in
+            try await Task.sleep(for: .seconds(3))
+            save()
         }
     }
     
