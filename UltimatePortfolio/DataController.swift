@@ -20,6 +20,27 @@ class DataController {
     
     var filterText = ""
     
+    var filterTokens = [Tag]()
+    
+    var suggestedFilterTokens: [Tag] {
+        guard filterText.starts(with: "#") else {
+            return []
+        }
+
+        let trimmedFilterText = String(filterText.dropFirst()).trimmingCharacters(in: .whitespaces)
+        let request = Tag.fetchRequest()
+
+        if !trimmedFilterText.isEmpty {
+            request.predicate = NSPredicate(format: "name CONTAINS[c] %@", trimmedFilterText)
+        }
+
+        let suggestions = (try? container.viewContext.fetch(request).sorted()) ?? []
+
+        return suggestions.filter { tag in
+            !filterTokens.contains(tag)
+        }
+    }
+    
     private var saveTask: Task<Void, Error>?
     
     init(inMemory: Bool = false) {
@@ -133,7 +154,7 @@ class DataController {
             let tagPredicate = NSPredicate(format: "tags CONTAINS %@", tag)
             predicates.append(tagPredicate)
         } else {
-            let datePredicate = NSPredicate(format: "modificationDate < %@", filter.minModificationDate as NSDate)
+            let datePredicate = NSPredicate(format: "modificationDate > %@", filter.minModificationDate as NSDate)
             predicates.append(datePredicate)
         }
         
@@ -145,6 +166,12 @@ class DataController {
             predicates.append(combinedPredicate)
         }
 
+        if !filterTokens.isEmpty {
+            for filterToken in filterTokens {
+                let tokenPredicate = NSPredicate(format: "tags CONTAINS %@", filterToken)
+                predicates.append(tokenPredicate)
+            }
+        }
         
         let request = Issue.fetchRequest()
         request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
