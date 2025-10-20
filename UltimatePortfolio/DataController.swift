@@ -122,4 +122,19 @@ class DataController {
         let difference = allTagsSet.symmetricDifference(issue.issueTags)
         return difference.sorted()
     }
+    
+    func issuesforSelectedFilter() -> [Issue] {
+        let filter = selectedFilter ?? .all
+        var allIssues: [Issue]
+        
+        if let tag = filter.tag {
+            allIssues = tag.issues?.allObjects as? [Issue] ?? []
+        } else {
+            let request = Issue.fetchRequest()
+            request.predicate = NSPredicate(format: "modificationDate > %@", filter.minModificationDate as NSDate)
+            allIssues = (try? container.viewContext.fetch(request)) ?? []
+        }
+        
+        return allIssues.sorted()
+    }
 }
