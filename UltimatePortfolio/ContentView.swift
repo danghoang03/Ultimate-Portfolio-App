@@ -19,6 +19,7 @@ struct ContentView: View {
             .onDelete(perform: delete)
         }
         .navigationTitle("Issues")
+        .searchable(text: Bindable(dataController).filterText, prompt: "Filter issues")
         .id(dataController.lastUpdate)
     }
     
